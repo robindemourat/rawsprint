@@ -181,7 +181,7 @@ angular.module('raw.directives', [])
 	    };
 	  })
 
-	.directive('sortable', function ($rootScope) {
+	.directive('sortable', function ($rootScope, $document) {
     return {
       restrict: 'A',
       scope : {
@@ -228,7 +228,8 @@ angular.module('raw.directives', [])
 		    	if (ui.item.find('span.remove').length == 0) {
 		      	ui.item.append("<span class='remove pull-right'>&times;</span>")
 		      }
-		     	ui.item.find('span.remove').click(function(){  ui.item.remove(); onRemove(); });
+          // modified for rawsprint (broadcast that an item has been deleted)
+		     	ui.item.find('span.remove').click(function(){  ui.item.remove(); onRemove();$rootScope.$broadcast('updateDimension', {dimension: scope.title}) });
 
 		     	if (removeLast) {
 		     		ui.item.remove();
@@ -243,9 +244,22 @@ angular.module('raw.directives', [])
 					var dimension = ui.item.data().dimension;
 		     	ui.item.toggleClass("invalid", !isValidType(dimension))
 		     	message();
+          // added for rawsprint
+          $rootScope.$broadcast('updateDimension', {dimension: scope.title, key: dimension.key });
 
 		     	$rootScope.$broadcast("update");
 		    }
+
+        // added for rawsprint
+        $rootScope.$on('chartLoaded', function(e, query) {
+          const key = Object.keys(query).find(function(param) {
+            return param === scope.title;
+          });
+          if (key) {
+            var value = decodeURIComponent(query[key]);
+            console.log('select', value);
+          }
+        })
 
 		    scope.$watch('value', function (value){
 		    	if (!value.length) {
@@ -596,4 +610,22 @@ angular.module('raw.directives', [])
 
     }
   };
-});
+})
+.directive('rawsprintListFiles', function(summaryPicker){
+  return {
+    restrict: 'A',
+    link: function postLink(scope, element, attrs) {
+      summaryPicker.get().then(function(str) {
+        const list = str.split('\n').map(function(file) {
+          return file.trim();
+        }).filter(function(file){
+          return file.length > 0;
+        });
+        scope.filesList = list;
+      })
+      .catch(function(err) {
+        console.error(err);
+      })
+    }
+  }
+})

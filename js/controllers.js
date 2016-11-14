@@ -4,7 +4,7 @@
 
 angular.module('raw.controllers', [])
 
-  .controller('RawCtrl', function ($scope, dataService) {
+  .controller('RawCtrl', function ($scope, dataService, $location) {
 
     $scope.samples = [
       { title : 'Cars (multivariate)', url : 'data/multivariate.csv' },
@@ -25,12 +25,64 @@ angular.module('raw.controllers', [])
       );
     });
 
+    function loadFile(fileName) {
+      if (!fileName) return;
+      dataService.loadSample('sprintData/' + fileName).then(
+        function(data){
+          $scope.text = data;
+          $location.search('fileName', fileName);
+          if (query.chart) {
+            var chart = raw.charts.values().find(function(chart) {
+              return chart.title() === decodeURIComponent(query.chart)
+            });
+            $scope.selectChart(chart);
+          }
+        }, 
+        function(error){
+          $scope.error = error;
+        }
+      );
+    }
+    $scope.$watch('file', loadFile);
+    // updating dimensions mapping data in url queryParams
+    $scope.$on('updateDimension', function(e, params) {
+      console.log(params);
+      var searchKey = encodeURIComponent('dimension_' + params.dimension);
+      if (params.key) {
+        var searchValue = encodeURIComponent(params.key);
+        setTimeout(function(){
+          $location.search(params.dimension, searchValue);
+          $scope.$apply();
+        });
+      } else {
+        setTimeout(function(){
+          $location.search(params.dimension, null);
+          $scope.$apply();
+        })
+      }
+    });
+
+    // added for rawsprint
+    $scope.$watch('loading', function(loading){
+      if (!loading){
+        var queryParam = $location.search();
+        $scope.$emit('chartLoaded', queryParam);
+      }
+    })
+
     // init
     $scope.raw = raw;
     $scope.data = [];
     $scope.metadata = [];
     $scope.error = false;
     $scope.loading = true;
+
+    // loading params from route
+    var query = $location.search();
+    if (query.fileName) {
+      console.info('loading', query.fileName);
+      $scope.file = $location.search().fileName;
+    }
 
     $scope.categories = ['Correlations', 'Distributions', 'Time Series', 'Hierarchies', 'Others'];
 
@@ -99,6 +151,7 @@ angular.module('raw.controllers', [])
       if (chart == $scope.chart) return;
       $scope.model.clear();
       $scope.chart = chart;
+      $location.search('chart', encodeURIComponent(chart.title()));
       $scope.model = $scope.chart.model();
     }
 

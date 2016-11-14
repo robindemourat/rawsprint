@@ -1,5 +1,6 @@
 <p align="center"><img src="http://raw.densitydesign.org/wp-content/uploads/2014/04/header.png"></p>
 
+Major changes happen in `directives.js` and `controllers.js`.
 
 ##About
 

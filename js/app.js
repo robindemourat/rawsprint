@@ -14,7 +14,7 @@ angular.module('raw', [
 ])
 
 .config(['$routeProvider','$locationProvider', function ($routeProvider,$locationProvider) {
-  $routeProvider.when('/', {templateUrl: 'partials/main.html', controller: 'RawCtrl'});
+  $routeProvider.when('/', {templateUrl: 'partials/main.html', controller: 'RawCtrl', reloadOnSearch: false});
   $routeProvider.otherwise({redirectTo: '/'});
   $locationProvider.html5Mode(true);
 }]);

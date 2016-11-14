@@ -48,3 +48,22 @@ angular.module('raw.services', [])
 
 	  	}
 	})
+	.service('summaryPicker', function($http, $q) {
+    var _this = this;
+
+    this.get = function() {
+        var defer = $q.defer();
+
+        $http.get('sprintData/summary.txt')
+            .success(function(data) {
+                angular.extend(_this, data);
+                defer.resolve(data);
+            })
+            .error(function() {
+                defer.reject('could not find summary.txt');
+            });
+
+        return defer.promise;
+    }
+});
+

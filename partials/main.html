@@ -3,7 +3,22 @@
 	<section class="">
 
 		<div class="container">
+			<h3>Pick a data file to work with</h3>
+			<div rawsprint-list-files>
+				<button type="button"
+					class="choose btn btn-default"
+					ng-model="file"
+					placeholder="Choose a file to work on"
+					ng-options="f for f in filesList" bs-select>
+			</div>
+			<p ng-if="!filesList || !filesList.length">No data files yet. Fill the sprintData folder and update summary.txt accordingly to see them there !</p>
 
+			<div>
+				<div data-ng-show="!loading && !error && data.length" class="alert alert-success"><i class="fa fa-thumbs-up breath-right"></i><strong>{{data.length}}</strong> records in your data have been successfully parsed!</div>
+				<div data-ng-show="error" class="alert alert-warning"><i class="fa fa-thumbs-down breath-right"></i><strong>Whoops!</strong> Please, check line {{error+1}}</div>
+				<div data-ng-show="loading" class="alert"><i class="fa breath-right fa-refresh fa-spin"></i>Loading your data. Please wait.</div>
+			</div>
+			<!--
 			<h3 id="data">Insert your data
 				<button type="button"
 				class="choose btn btn-default"
@@ -38,6 +53,7 @@
 			<div data-ng-show="error" class="alert alert-warning"><i class="fa fa-thumbs-down breath-right"></i><strong>Whoops!</strong> Please, check line {{error+1}}</div>
 			<div data-ng-show="loading" class="alert"><i class="fa breath-right fa-refresh fa-spin"></i>Loading your data. Please wait.</div>
 		</div>
+		-->
 
 		</div>
 
